@@ -32,21 +32,19 @@ FORECAST_WELYSIS_CISTERNAS = {
 }
 
 
-def aplicar_tema(modo):
-    """Aplica un tema visual completo a Streamlit y devuelve colores Plotly."""
-    oscuro = modo == "Oscuro"
-
+def aplicar_tema():
+    """Aplica un tema claro fijo a toda la aplicación."""
     colores = {
-        "fondo": "#0E1117" if oscuro else "#FFFFFF",
-        "fondo_sec": "#161B22" if oscuro else "#F3F6F9",
-        "fondo_card": "#1B222C" if oscuro else "#FFFFFF",
-        "fondo_input": "#212936" if oscuro else "#FFFFFF",
-        "texto": "#F3F4F6" if oscuro else "#1F2937",
-        "texto_sec": "#C5CED8" if oscuro else "#667085",
-        "borde": "#343D4A" if oscuro else "#D8DEE6",
+        "fondo": "#FFFFFF",
+        "fondo_sec": "#F3F6F9",
+        "fondo_card": "#FFFFFF",
+        "fondo_input": "#FFFFFF",
+        "texto": "#1F2937",
+        "texto_sec": "#667085",
+        "borde": "#D8DEE6",
         "acento": "#2F80ED",
-        "hover": "#293241" if oscuro else "#EAF2FF",
-        "plot_grid": "#303946" if oscuro else "#E5E7EB",
+        "hover": "#EAF2FF",
+        "plot_grid": "#E5E7EB",
     }
 
     st.markdown(
@@ -68,25 +66,26 @@ def aplicar_tema(modo):
             color: var(--app-text) !important;
         }}
 
-        /* Barra superior de Streamlit */
         [data-testid="stHeader"],
         [data-testid="stToolbar"],
         [data-testid="stDecoration"] {{
             background: var(--app-bg) !important;
             color: var(--app-text) !important;
         }}
+
         [data-testid="stHeader"] {{
             border-bottom: 1px solid var(--app-border) !important;
         }}
 
-        /* Barra lateral y botón para contraer/expandir */
         [data-testid="stSidebar"] {{
             background: var(--secondary-bg) !important;
             border-right: 1px solid var(--app-border) !important;
         }}
+
         [data-testid="stSidebar"] * {{
             color: var(--app-text);
         }}
+
         [data-testid="stSidebarCollapseButton"] button,
         [data-testid="stSidebarCollapsedControl"] button,
         button[kind="headerNoPadding"] {{
@@ -95,6 +94,7 @@ def aplicar_tema(modo):
             color: var(--app-text) !important;
             opacity: 1 !important;
         }}
+
         [data-testid="stSidebarCollapseButton"] svg,
         [data-testid="stSidebarCollapsedControl"] svg,
         button[kind="headerNoPadding"] svg {{
@@ -104,39 +104,40 @@ def aplicar_tema(modo):
             opacity: 1 !important;
         }}
 
-        /* Texto general */
         h1, h2, h3, h4, h5, h6, p, label,
         .stMarkdown, [data-testid="stCaptionContainer"] {{
             color: var(--app-text) !important;
         }}
+
         [data-testid="stCaptionContainer"] p {{
             color: var(--muted-text) !important;
         }}
 
-        /* Métricas y contenedores */
         [data-testid="stMetric"] {{
             background: var(--card-bg) !important;
             border: 1px solid var(--app-border) !important;
             padding: 0.85rem !important;
             border-radius: 0.7rem !important;
         }}
+
         [data-testid="stMetric"] * {{
             color: var(--app-text) !important;
         }}
 
-        /* Botones normales y de descarga */
         .stButton > button,
         .stDownloadButton > button {{
             background: var(--input-bg) !important;
             color: var(--app-text) !important;
             border: 1px solid var(--app-border) !important;
         }}
+
         .stButton > button:hover,
         .stDownloadButton > button:hover {{
             background: var(--app-hover) !important;
             color: var(--app-text) !important;
             border-color: {colores['acento']} !important;
         }}
+
         .stButton > button:disabled,
         .stDownloadButton > button:disabled {{
             background: var(--secondary-bg) !important;
@@ -144,7 +145,6 @@ def aplicar_tema(modo):
             opacity: 0.75 !important;
         }}
 
-        /* Selectores, radios y desplegables */
         [data-baseweb="select"] > div,
         [data-baseweb="input"] > div,
         [data-baseweb="popover"] > div,
@@ -153,44 +153,47 @@ def aplicar_tema(modo):
             color: var(--app-text) !important;
             border-color: var(--app-border) !important;
         }}
+
         [role="option"] {{
             background: var(--input-bg) !important;
             color: var(--app-text) !important;
         }}
+
         [role="option"]:hover {{
             background: var(--app-hover) !important;
         }}
 
-        /* Expander: elimina los rectángulos blancos */
         [data-testid="stExpander"] {{
             background: var(--card-bg) !important;
             border: 1px solid var(--app-border) !important;
             border-radius: 0.65rem !important;
             overflow: hidden !important;
         }}
+
         [data-testid="stExpander"] details,
         [data-testid="stExpander"] summary,
         [data-testid="stExpander"] div {{
             background: transparent !important;
             color: var(--app-text) !important;
         }}
+
         [data-testid="stExpander"] svg {{
             fill: var(--app-text) !important;
             stroke: var(--app-text) !important;
         }}
 
-        /* Pestañas */
         [data-baseweb="tab-list"] {{
             background: var(--app-bg) !important;
         }}
+
         [data-baseweb="tab"] {{
             color: var(--muted-text) !important;
         }}
+
         [aria-selected="true"][data-baseweb="tab"] {{
             color: var(--app-text) !important;
         }}
 
-        /* Gráficos y tablas */
         [data-testid="stPlotlyChart"],
         [data-testid="stDataFrame"],
         [data-testid="stTable"] {{
@@ -199,47 +202,48 @@ def aplicar_tema(modo):
             border-radius: 0.6rem !important;
             overflow: hidden !important;
         }}
+
         [data-testid="stPlotlyChart"] > div,
         [data-testid="stPlotlyChart"] iframe {{
             background: var(--card-bg) !important;
         }}
 
-        /* Alertas y mensajes */
         [data-testid="stAlert"] {{
             color: var(--app-text) !important;
             border: 1px solid var(--app-border) !important;
         }}
 
-        /* Menú superior y elementos SVG */
         [data-testid="stMainMenu"] button,
         [data-testid="stToolbar"] button {{
             color: var(--app-text) !important;
             background: transparent !important;
         }}
+
         [data-testid="stMainMenu"] svg,
         [data-testid="stToolbar"] svg {{
             fill: var(--app-text) !important;
             stroke: var(--app-text) !important;
         }}
 
-        /* Ajustes generales de densidad */
         .block-container {{
             max-width: 1500px;
             padding-top: 2.2rem;
             padding-bottom: 2rem;
         }}
+
         [data-testid="stMetricValue"] {{
             font-size: clamp(1.45rem, 2.2vw, 2.25rem) !important;
             line-height: 1.1 !important;
         }}
+
         [data-testid="stMetricLabel"] {{
             font-size: 0.92rem !important;
         }}
+
         [data-testid="stMetricDelta"] {{
             font-size: 0.82rem !important;
         }}
 
-        /* Móvil: una sola columna, menos márgenes y controles manejables */
         @media (max-width: 768px) {{
             .block-container {{
                 padding: 0.75rem 0.72rem 1.5rem 0.72rem !important;
@@ -251,22 +255,25 @@ def aplicar_tema(modo):
                 line-height: 1.15 !important;
                 margin-bottom: 0.35rem !important;
             }}
+
             h2 {{
                 font-size: 1.35rem !important;
                 line-height: 1.2 !important;
             }}
+
             h3 {{
                 font-size: 1.12rem !important;
             }}
+
             p, label, .stMarkdown {{
                 font-size: 0.92rem !important;
             }}
 
-            /* Apilar todas las columnas de Streamlit */
             [data-testid="stHorizontalBlock"] {{
                 flex-wrap: wrap !important;
                 gap: 0.55rem !important;
             }}
+
             [data-testid="column"] {{
                 width: 100% !important;
                 flex: 1 1 100% !important;
@@ -278,24 +285,25 @@ def aplicar_tema(modo):
                 border-radius: 0.65rem !important;
                 min-height: auto !important;
             }}
+
             [data-testid="stMetricValue"] {{
                 font-size: 1.58rem !important;
             }}
+
             [data-testid="stMetricLabel"] {{
                 font-size: 0.84rem !important;
             }}
+
             [data-testid="stMetricDelta"] {{
                 font-size: 0.76rem !important;
             }}
 
-            /* Cabecera y logo más compactos */
             [data-testid="stImage"] img {{
                 max-height: 58px !important;
                 width: auto !important;
                 object-fit: contain !important;
             }}
 
-            /* Pestañas desplazables, sin comprimir el texto */
             [data-baseweb="tab-list"] {{
                 overflow-x: auto !important;
                 overflow-y: hidden !important;
@@ -303,46 +311,45 @@ def aplicar_tema(modo):
                 scrollbar-width: thin;
                 gap: 0.15rem !important;
             }}
+
             [data-baseweb="tab"] {{
                 flex: 0 0 auto !important;
                 padding: 0.55rem 0.65rem !important;
                 font-size: 0.82rem !important;
             }}
 
-            /* Controles ocupan todo el ancho */
             .stButton > button,
             .stDownloadButton > button {{
                 width: 100% !important;
                 min-height: 2.65rem !important;
             }}
+
             [data-baseweb="select"] {{
                 width: 100% !important;
             }}
 
-            /* Gráficos sin marco excesivo y con scroll evitado */
             [data-testid="stPlotlyChart"] {{
                 border-radius: 0.5rem !important;
                 width: 100% !important;
             }}
+
             [data-testid="stPlotlyChart"] > div {{
                 width: 100% !important;
             }}
 
-            /* Tablas: altura limitada y desplazamiento horizontal interno */
             [data-testid="stDataFrame"] {{
                 max-height: 420px !important;
                 overflow: auto !important;
             }}
 
-            /* Sidebar usable en pantallas pequeñas */
             [data-testid="stSidebar"] {{
                 width: min(86vw, 310px) !important;
             }}
+
             [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
                 gap: 0.65rem !important;
             }}
 
-            /* Expander más compacto */
             [data-testid="stExpander"] summary {{
                 padding: 0.65rem 0.75rem !important;
                 font-size: 0.88rem !important;
@@ -352,6 +359,7 @@ def aplicar_tema(modo):
         """,
         unsafe_allow_html=True,
     )
+
     return colores
 
 
@@ -363,7 +371,7 @@ def estilizar_figura(fig, colores):
     accidentales cuando el usuario hace scroll desde un móvil.
     """
     fig.update_layout(
-        template="plotly_dark" if colores["fondo"] == "#0E1117" else "plotly_white",
+        template="plotly_white",
         paper_bgcolor=colores["fondo_card"],
         plot_bgcolor=colores["fondo_card"],
         font={"color": colores["texto"]},
@@ -514,13 +522,7 @@ def cargar_anticipado(_firma):
     return cargar_bundle(_firma).get("anticipado")
 
 
-modo_visual = st.sidebar.radio(
-    "Apariencia",
-    ["Claro", "Oscuro"],
-    horizontal=True,
-    key="modo_visual",
-)
-COLORES_TEMA = aplicar_tema(modo_visual)
+COLORES_TEMA = aplicar_tema()
 
 logo_app = encontrar_logo()
 if logo_app is not None:
