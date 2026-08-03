@@ -356,17 +356,29 @@ def aplicar_tema(modo):
 
 
 def estilizar_figura(fig, colores):
-    """Fuerza colores coherentes en todos los gráficos Plotly."""
+    """
+    Aplica el tema de la aplicación y bloquea los ejes del gráfico.
+
+    Los ejes quedan fijos para impedir zoom, desplazamientos o cambios
+    accidentales cuando el usuario hace scroll desde un móvil.
+    """
     fig.update_layout(
         template="plotly_dark" if colores["fondo"] == "#0E1117" else "plotly_white",
         paper_bgcolor=colores["fondo_card"],
         plot_bgcolor=colores["fondo_card"],
         font={"color": colores["texto"]},
+        dragmode=False,
+        hovermode=False,
         legend={
             "font": {"color": colores["texto"]},
             "bgcolor": "rgba(0,0,0,0)",
+            "orientation": "h",
+            "yanchor": "bottom",
+            "y": 1.02,
+            "xanchor": "center",
+            "x": 0.5,
         },
-        margin={"l": 35, "r": 18, "t": 48, "b": 35},
+        margin={"l": 18, "r": 10, "t": 78, "b": 35},
         height=360,
         autosize=True,
     )
@@ -375,14 +387,46 @@ def estilizar_figura(fig, colores):
         gridcolor=colores["plot_grid"],
         zerolinecolor=colores["plot_grid"],
         linecolor=colores["borde"],
+        fixedrange=True,
+        automargin=True,
+        nticks=7,
     )
     fig.update_yaxes(
         color=colores["texto"],
         gridcolor=colores["plot_grid"],
         zerolinecolor=colores["plot_grid"],
         linecolor=colores["borde"],
+        fixedrange=True,
+        automargin=True,
+        title=None,
     )
     return fig
+
+
+def mostrar_grafico(fig, key=None):
+    """
+    Muestra un gráfico completamente estático y responsive.
+
+    staticPlot=True hace que Plotly trate el gráfico como una imagen:
+    - no captura gestos táctiles;
+    - no permite zoom;
+    - no permite arrastrar;
+    - no modifica los ejes;
+    - facilita el scroll vertical en móvil.
+    """
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+        key=key,
+        config={
+            "responsive": True,
+            "displayModeBar": False,
+            "scrollZoom": False,
+            "doubleClick": False,
+            "showTips": False,
+            "staticPlot": True,
+        },
+    )
 
 
 def encontrar_logo():
@@ -680,30 +724,30 @@ with tab_validacion:
         can_comp["pred_acumulado"] = can_comp["toneladas_pred"].cumsum()
 
         st.subheader("Gran Canaria")
-        st.plotly_chart(
+        mostrar_grafico(
             estilizar_figura(
                 grafico_zona(gc_comp, "Real frente a previsto · Gran Canaria"),
                 COLORES_TEMA,
             ),
-            use_container_width=True,
+            key=f"validacion_gc_{periodo}_{vista}",
         )
 
         st.subheader("Tenerife")
-        st.plotly_chart(
+        mostrar_grafico(
             estilizar_figura(
                 grafico_zona(tf_comp, "Real frente a previsto · Tenerife"),
                 COLORES_TEMA,
             ),
-            use_container_width=True,
+            key=f"validacion_tf_{periodo}_{vista}",
         )
 
         st.subheader("Canarias")
-        st.plotly_chart(
+        mostrar_grafico(
             estilizar_figura(
                 grafico_zona(can_comp, "Real frente a previsto · Total Canarias"),
                 COLORES_TEMA,
             ),
-            use_container_width=True,
+            key=f"validacion_can_{periodo}_{vista}",
         )
 
         with st.expander("Ver resultado detallado por isla"):
@@ -874,7 +918,7 @@ with tab_inicial:
             labels={"toneladas_pred": "Toneladas previstas", "nombre_isla": "Isla"},
         )
         fig.update_layout(legend_title_text="")
-        st.plotly_chart(estilizar_figura(fig, COLORES_TEMA), use_container_width=True)
+        mostrar_grafico(estilizar_figura(fig, COLORES_TEMA))
 
         with st.expander("Ver resumen por isla"):
             tabla = resumen.rename(columns={
@@ -946,7 +990,7 @@ with tab_seguimiento:
             legend_title_text="",
             
         )
-        st.plotly_chart(estilizar_figura(fig, COLORES_TEMA), use_container_width=True)
+        mostrar_grafico(estilizar_figura(fig, COLORES_TEMA))
 
         with st.expander("Ver cierre estimado por isla"):
             tabla_seg = resumen_seg.rename(columns={
@@ -1015,7 +1059,7 @@ if mostrar_anticipado and tab_anticipado is not None:
                     labels={"toneladas_pred": "Toneladas previstas", "nombre_isla": "Isla"},
                 )
                 fig.update_layout(legend_title_text="")
-                st.plotly_chart(estilizar_figura(fig, COLORES_TEMA), use_container_width=True)
+                mostrar_grafico(estilizar_figura(fig, COLORES_TEMA))
 
                 with st.expander("Ver detalle diario"):
                     st.dataframe(forecast_ant, use_container_width=True, hide_index=True)
