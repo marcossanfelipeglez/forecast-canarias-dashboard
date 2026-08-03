@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+local_engine/
+# Nunca publicar los datos fuente ni modelos
+data/
+models/
+catboost_info/
+*.db
+*.xlsx
+*.pkl
+# Sí se publica el bundle ligero del dashboard
+!outputs/dashboard_bundle.joblib
+!outputs/metadata.json
