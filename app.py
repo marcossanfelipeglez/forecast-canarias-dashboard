@@ -554,10 +554,6 @@ hoy_app = (
 )
 mostrar_anticipado = cargar_bundle(firma_datos).get("anticipado") is not None if BUNDLE_PATH.exists() else False
 
-if st.sidebar.button("🔄 Recargar resultados", use_container_width=True):
-    st.cache_resource.clear()
-    st.rerun()
-
 st.sidebar.caption(f"Datos publicados con corte: {bundle_meta.get('ultima_fecha_datos', 'no disponible')}")
 st.sidebar.caption(f"Actualización: {bundle_meta.get('generado_en', 'no disponible')}")
 st.sidebar.caption("En móvil, usa la flecha superior para ocultar este panel.")
