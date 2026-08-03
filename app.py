@@ -221,6 +221,133 @@ def aplicar_tema(modo):
             fill: var(--app-text) !important;
             stroke: var(--app-text) !important;
         }}
+
+        /* Ajustes generales de densidad */
+        .block-container {{
+            max-width: 1500px;
+            padding-top: 2.2rem;
+            padding-bottom: 2rem;
+        }}
+        [data-testid="stMetricValue"] {{
+            font-size: clamp(1.45rem, 2.2vw, 2.25rem) !important;
+            line-height: 1.1 !important;
+        }}
+        [data-testid="stMetricLabel"] {{
+            font-size: 0.92rem !important;
+        }}
+        [data-testid="stMetricDelta"] {{
+            font-size: 0.82rem !important;
+        }}
+
+        /* Móvil: una sola columna, menos márgenes y controles manejables */
+        @media (max-width: 768px) {{
+            .block-container {{
+                padding: 0.75rem 0.72rem 1.5rem 0.72rem !important;
+                max-width: 100% !important;
+            }}
+
+            h1 {{
+                font-size: 1.65rem !important;
+                line-height: 1.15 !important;
+                margin-bottom: 0.35rem !important;
+            }}
+            h2 {{
+                font-size: 1.35rem !important;
+                line-height: 1.2 !important;
+            }}
+            h3 {{
+                font-size: 1.12rem !important;
+            }}
+            p, label, .stMarkdown {{
+                font-size: 0.92rem !important;
+            }}
+
+            /* Apilar todas las columnas de Streamlit */
+            [data-testid="stHorizontalBlock"] {{
+                flex-wrap: wrap !important;
+                gap: 0.55rem !important;
+            }}
+            [data-testid="column"] {{
+                width: 100% !important;
+                flex: 1 1 100% !important;
+                min-width: 100% !important;
+            }}
+
+            [data-testid="stMetric"] {{
+                padding: 0.72rem 0.8rem !important;
+                border-radius: 0.65rem !important;
+                min-height: auto !important;
+            }}
+            [data-testid="stMetricValue"] {{
+                font-size: 1.58rem !important;
+            }}
+            [data-testid="stMetricLabel"] {{
+                font-size: 0.84rem !important;
+            }}
+            [data-testid="stMetricDelta"] {{
+                font-size: 0.76rem !important;
+            }}
+
+            /* Cabecera y logo más compactos */
+            [data-testid="stImage"] img {{
+                max-height: 58px !important;
+                width: auto !important;
+                object-fit: contain !important;
+            }}
+
+            /* Pestañas desplazables, sin comprimir el texto */
+            [data-baseweb="tab-list"] {{
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                white-space: nowrap !important;
+                scrollbar-width: thin;
+                gap: 0.15rem !important;
+            }}
+            [data-baseweb="tab"] {{
+                flex: 0 0 auto !important;
+                padding: 0.55rem 0.65rem !important;
+                font-size: 0.82rem !important;
+            }}
+
+            /* Controles ocupan todo el ancho */
+            .stButton > button,
+            .stDownloadButton > button {{
+                width: 100% !important;
+                min-height: 2.65rem !important;
+            }}
+            [data-baseweb="select"] {{
+                width: 100% !important;
+            }}
+
+            /* Gráficos sin marco excesivo y con scroll evitado */
+            [data-testid="stPlotlyChart"] {{
+                border-radius: 0.5rem !important;
+                width: 100% !important;
+            }}
+            [data-testid="stPlotlyChart"] > div {{
+                width: 100% !important;
+            }}
+
+            /* Tablas: altura limitada y desplazamiento horizontal interno */
+            [data-testid="stDataFrame"] {{
+                max-height: 420px !important;
+                overflow: auto !important;
+            }}
+
+            /* Sidebar usable en pantallas pequeñas */
+            [data-testid="stSidebar"] {{
+                width: min(86vw, 310px) !important;
+            }}
+            [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
+                gap: 0.65rem !important;
+            }}
+
+            /* Expander más compacto */
+            [data-testid="stExpander"] summary {{
+                padding: 0.65rem 0.75rem !important;
+                font-size: 0.88rem !important;
+            }}
+        }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -239,7 +366,9 @@ def estilizar_figura(fig, colores):
             "font": {"color": colores["texto"]},
             "bgcolor": "rgba(0,0,0,0)",
         },
-        margin={"l": 40, "r": 25, "t": 55, "b": 40},
+        margin={"l": 35, "r": 18, "t": 48, "b": 35},
+        height=360,
+        autosize=True,
     )
     fig.update_xaxes(
         color=colores["texto"],
@@ -300,6 +429,7 @@ st.set_page_config(
     page_title="Forecast Hipoclorito Canarias",
     page_icon="📈",
     layout="wide",
+    initial_sidebar_state="auto",
 )
 
 MESES_ES = {
@@ -378,12 +508,13 @@ hoy_app = (
 )
 mostrar_anticipado = cargar_bundle(firma_datos).get("anticipado") is not None if BUNDLE_PATH.exists() else False
 
-if st.sidebar.button("Recargar resultados publicados"):
+if st.sidebar.button("🔄 Recargar resultados", use_container_width=True):
     st.cache_resource.clear()
     st.rerun()
 
 st.sidebar.caption(f"Datos publicados con corte: {bundle_meta.get('ultima_fecha_datos', 'no disponible')}")
 st.sidebar.caption(f"Actualización: {bundle_meta.get('generado_en', 'no disponible')}")
+st.sidebar.caption("En móvil, usa la flecha superior para ocultar este panel.")
 
 
 _etiquetas_tabs = [
@@ -476,8 +607,9 @@ with tab_validacion:
                 fila_can["Ganador"],
                 f'{fila_can["Ventaja del ganador (cisternas)"]:,.2f} cisternas',
             )
-            st.dataframe(
-                comparativa_w.style.format({
+            with st.expander("Ver comparación completa por zona"):
+                st.dataframe(
+                    comparativa_w.style.format({
                     "Real (cisternas)": "{:,.2f}",
                     "Modelo ML (cisternas)": "{:,.2f}",
                     "Forecast Welysis (cisternas)": "{:,.2f}",
@@ -574,106 +706,106 @@ with tab_validacion:
             use_container_width=True,
         )
 
-        st.subheader("Resultado por isla")
-        tabla_res = res.copy()
-        tabla_res["Cisternas reales"] = tabla_res["toneladas_reales"] / 24.0
-        tabla_res["Cisternas previstas"] = tabla_res["toneladas_previstas"] / 24.0
-        tabla_res["Diferencia absoluta (t)"] = (
-            tabla_res["toneladas_previstas"] - tabla_res["toneladas_reales"]
-        ).abs()
-        tabla_res["Diferencia absoluta (cisternas)"] = (
-            tabla_res["Cisternas previstas"] - tabla_res["Cisternas reales"]
-        ).abs()
-        tabla_res = tabla_res.rename(columns={
-            "nombre_isla": "Zona",
-            "dias_evaluados": "Días evaluados",
-            "toneladas_reales": "Toneladas reales",
-            "toneladas_previstas": "Toneladas previstas",
-        })[[
-            "Zona", "Días evaluados", "Toneladas reales",
-            "Toneladas previstas", "Diferencia absoluta (t)",
-            "Cisternas reales", "Cisternas previstas",
-            "Diferencia absoluta (cisternas)",
-        ]]
-        st.dataframe(
-            tabla_res.style.format({
-                "Toneladas reales": "{:,.1f}",
-                "Toneladas previstas": "{:,.1f}",
-                "Diferencia absoluta (t)": "{:,.1f}",
-                "Cisternas reales": "{:,.1f}",
-                "Cisternas previstas": "{:,.1f}",
-                "Diferencia absoluta (cisternas)": "{:,.1f}",
-            }),
-            use_container_width=True,
-            hide_index=True,
-        )
+        with st.expander("Ver resultado detallado por isla"):
+            tabla_res = res.copy()
+            tabla_res["Cisternas reales"] = tabla_res["toneladas_reales"] / 24.0
+            tabla_res["Cisternas previstas"] = tabla_res["toneladas_previstas"] / 24.0
+            tabla_res["Diferencia absoluta (t)"] = (
+                tabla_res["toneladas_previstas"] - tabla_res["toneladas_reales"]
+            ).abs()
+            tabla_res["Diferencia absoluta (cisternas)"] = (
+                tabla_res["Cisternas previstas"] - tabla_res["Cisternas reales"]
+            ).abs()
+            tabla_res = tabla_res.rename(columns={
+                "nombre_isla": "Zona",
+                "dias_evaluados": "Días evaluados",
+                "toneladas_reales": "Toneladas reales",
+                "toneladas_previstas": "Toneladas previstas",
+            })[[
+                "Zona", "Días evaluados", "Toneladas reales",
+                "Toneladas previstas", "Diferencia absoluta (t)",
+                "Cisternas reales", "Cisternas previstas",
+                "Diferencia absoluta (cisternas)",
+            ]]
+            st.dataframe(
+                tabla_res.style.format({
+                    "Toneladas reales": "{:,.1f}",
+                    "Toneladas previstas": "{:,.1f}",
+                    "Diferencia absoluta (t)": "{:,.1f}",
+                    "Cisternas reales": "{:,.1f}",
+                    "Cisternas previstas": "{:,.1f}",
+                    "Diferencia absoluta (cisternas)": "{:,.1f}",
+                }),
+                use_container_width=True,
+                hide_index=True,
+            )
 
-        st.subheader("Comparativa mensual abril–julio")
-        historico_total = resumen_backtests[
-            resumen_backtests["isla"] == "CAN"
-        ].copy()
-        historico_total["Mes"] = historico_total["periodo"].map(etiquetas)
-        historico_total["Diferencia absoluta (t)"] = (
-            historico_total["toneladas_previstas"]
-            - historico_total["toneladas_reales"]
-        ).abs()
-        historico_total["Cisternas reales"] = (
-            historico_total["toneladas_reales"] / 24.0
-        )
-        historico_total["Cisternas previstas"] = (
-            historico_total["toneladas_previstas"] / 24.0
-        )
-        historico_total["Diferencia absoluta (cisternas)"] = (
-            historico_total["Cisternas previstas"]
-            - historico_total["Cisternas reales"]
-        ).abs()
-        historico_total["Forecast Welysis (cisternas)"] = historico_total["periodo"].map(
-            lambda p: FORECAST_WELYSIS_CISTERNAS.get(p, {}).get("CAN", np.nan)
-        )
-        historico_total["Error Welysis (cisternas)"] = (
-            historico_total["Forecast Welysis (cisternas)"]
-            - historico_total["Cisternas reales"]
-        ).abs()
-        historico_total["Ganador"] = np.where(
-            historico_total["Diferencia absoluta (cisternas)"]
-            < historico_total["Error Welysis (cisternas)"],
-            "Modelo ML",
-            np.where(
+        with st.expander("Ver comparativa mensual abril–julio"):
+            historico_total = resumen_backtests[
+                resumen_backtests["isla"] == "CAN"
+            ].copy()
+            historico_total["Mes"] = historico_total["periodo"].map(etiquetas)
+            historico_total["Diferencia absoluta (t)"] = (
+                historico_total["toneladas_previstas"]
+                - historico_total["toneladas_reales"]
+            ).abs()
+            historico_total["Cisternas reales"] = (
+                historico_total["toneladas_reales"] / 24.0
+            )
+            historico_total["Cisternas previstas"] = (
+                historico_total["toneladas_previstas"] / 24.0
+            )
+            historico_total["Diferencia absoluta (cisternas)"] = (
+                historico_total["Cisternas previstas"]
+                - historico_total["Cisternas reales"]
+            ).abs()
+            historico_total["Forecast Welysis (cisternas)"] = historico_total["periodo"].map(
+                lambda p: FORECAST_WELYSIS_CISTERNAS.get(p, {}).get("CAN", np.nan)
+            )
+            historico_total["Error Welysis (cisternas)"] = (
+                historico_total["Forecast Welysis (cisternas)"]
+                - historico_total["Cisternas reales"]
+            ).abs()
+            historico_total["Ganador"] = np.where(
                 historico_total["Diferencia absoluta (cisternas)"]
-                > historico_total["Error Welysis (cisternas)"],
-                "Welysis",
-                "Empate",
-            ),
-        )
-        historico_total["Ventaja del ganador (cisternas)"] = (
-            historico_total["Diferencia absoluta (cisternas)"]
-            - historico_total["Error Welysis (cisternas)"]
-        ).abs()
-        historico_total = historico_total.rename(columns={
-            "toneladas_reales": "Real (t)",
-            "toneladas_previstas": "Previsto (t)",
-        })[[
-            "Mes", "Real (t)", "Previsto (t)",
-            "Diferencia absoluta (t)", "Cisternas reales",
-            "Cisternas previstas", "Diferencia absoluta (cisternas)",
-            "Forecast Welysis (cisternas)", "Error Welysis (cisternas)",
-            "Ganador", "Ventaja del ganador (cisternas)",
-        ]]
-        st.dataframe(
-            historico_total.style.format({
-                "Real (t)": "{:,.1f}",
-                "Previsto (t)": "{:,.1f}",
-                "Diferencia absoluta (t)": "{:,.1f}",
-                "Cisternas reales": "{:,.1f}",
-                "Cisternas previstas": "{:,.1f}",
-                "Diferencia absoluta (cisternas)": "{:,.1f}",
-                "Forecast Welysis (cisternas)": "{:,.1f}",
-                "Error Welysis (cisternas)": "{:,.1f}",
-                "Ventaja del ganador (cisternas)": "{:,.1f}",
-            }),
-            use_container_width=True,
-            hide_index=True,
-        )
+                < historico_total["Error Welysis (cisternas)"],
+                "Modelo ML",
+                np.where(
+                    historico_total["Diferencia absoluta (cisternas)"]
+                    > historico_total["Error Welysis (cisternas)"],
+                    "Welysis",
+                    "Empate",
+                ),
+            )
+            historico_total["Ventaja del ganador (cisternas)"] = (
+                historico_total["Diferencia absoluta (cisternas)"]
+                - historico_total["Error Welysis (cisternas)"]
+            ).abs()
+            historico_total = historico_total.rename(columns={
+                "toneladas_reales": "Real (t)",
+                "toneladas_previstas": "Previsto (t)",
+            })[[
+                "Mes", "Real (t)", "Previsto (t)",
+                "Diferencia absoluta (t)", "Cisternas reales",
+                "Cisternas previstas", "Diferencia absoluta (cisternas)",
+                "Forecast Welysis (cisternas)", "Error Welysis (cisternas)",
+                "Ganador", "Ventaja del ganador (cisternas)",
+            ]]
+            st.dataframe(
+                historico_total.style.format({
+                    "Real (t)": "{:,.1f}",
+                    "Previsto (t)": "{:,.1f}",
+                    "Diferencia absoluta (t)": "{:,.1f}",
+                    "Cisternas reales": "{:,.1f}",
+                    "Cisternas previstas": "{:,.1f}",
+                    "Diferencia absoluta (cisternas)": "{:,.1f}",
+                    "Forecast Welysis (cisternas)": "{:,.1f}",
+                    "Error Welysis (cisternas)": "{:,.1f}",
+                    "Ventaja del ganador (cisternas)": "{:,.1f}",
+                }),
+                use_container_width=True,
+                hide_index=True,
+            )
 
         with st.expander("Ver detalle diario del mes"):
             detalle = comp.copy()
@@ -744,20 +876,21 @@ with tab_inicial:
         fig.update_layout(legend_title_text="")
         st.plotly_chart(estilizar_figura(fig, COLORES_TEMA), use_container_width=True)
 
-        tabla = resumen.rename(columns={
-            "nombre_isla": "Zona",
-            "dias_previstos": "Días previstos",
-            "toneladas_predichas": "Toneladas previstas",
-            "cisternas_equivalentes_predichas": "Cisternas equivalentes",
-        })[["Zona", "Días previstos", "Toneladas previstas", "Cisternas equivalentes"]]
-        st.dataframe(
-            tabla.style.format({
-                "Toneladas previstas": "{:,.1f}",
-                "Cisternas equivalentes": "{:,.1f}",
-            }),
-            use_container_width=True,
-            hide_index=True,
-        )
+        with st.expander("Ver resumen por isla"):
+            tabla = resumen.rename(columns={
+                "nombre_isla": "Zona",
+                "dias_previstos": "Días previstos",
+                "toneladas_predichas": "Toneladas previstas",
+                "cisternas_equivalentes_predichas": "Cisternas equivalentes",
+            })[["Zona", "Días previstos", "Toneladas previstas", "Cisternas equivalentes"]]
+            st.dataframe(
+                tabla.style.format({
+                    "Toneladas previstas": "{:,.1f}",
+                    "Cisternas equivalentes": "{:,.1f}",
+                }),
+                use_container_width=True,
+                hide_index=True,
+            )
 
         with st.expander("Ver detalle diario"):
             st.dataframe(forecast, use_container_width=True, hide_index=True)
@@ -815,31 +948,31 @@ with tab_seguimiento:
         )
         st.plotly_chart(estilizar_figura(fig, COLORES_TEMA), use_container_width=True)
 
-        st.subheader("Cierre estimado por isla")
-        tabla_seg = resumen_seg.rename(columns={
-            "nombre_isla": "Zona",
-            "real_acumulado": "Real acumulado",
-            "forecast_pendiente": "Forecast pendiente",
-            "cierre_estimado": "Cierre estimado",
-            "forecast_inicial_mes": "Forecast inicial",
-            "desviacion_vs_inicial_t": "Variación vs. inicial",
-            "cisternas_cierre_estimado": "Cisternas estimadas",
-        })[[
-            "Zona", "Real acumulado", "Forecast pendiente", "Cierre estimado",
-            "Forecast inicial", "Variación vs. inicial", "Cisternas estimadas",
-        ]]
-        st.dataframe(
-            tabla_seg.style.format({
-                "Real acumulado": "{:,.1f}",
-                "Forecast pendiente": "{:,.1f}",
-                "Cierre estimado": "{:,.1f}",
-                "Forecast inicial": "{:,.1f}",
-                "Variación vs. inicial": "{:+,.1f}",
-                "Cisternas estimadas": "{:,.1f}",
-            }),
-            use_container_width=True,
-            hide_index=True,
-        )
+        with st.expander("Ver cierre estimado por isla"):
+            tabla_seg = resumen_seg.rename(columns={
+                "nombre_isla": "Zona",
+                "real_acumulado": "Real acumulado",
+                "forecast_pendiente": "Forecast pendiente",
+                "cierre_estimado": "Cierre estimado",
+                "forecast_inicial_mes": "Forecast inicial",
+                "desviacion_vs_inicial_t": "Variación vs. inicial",
+                "cisternas_cierre_estimado": "Cisternas estimadas",
+            })[[
+                "Zona", "Real acumulado", "Forecast pendiente", "Cierre estimado",
+                "Forecast inicial", "Variación vs. inicial", "Cisternas estimadas",
+            ]]
+            st.dataframe(
+                tabla_seg.style.format({
+                    "Real acumulado": "{:,.1f}",
+                    "Forecast pendiente": "{:,.1f}",
+                    "Cierre estimado": "{:,.1f}",
+                    "Forecast inicial": "{:,.1f}",
+                    "Variación vs. inicial": "{:+,.1f}",
+                    "Cisternas estimadas": "{:,.1f}",
+                }),
+                use_container_width=True,
+                hide_index=True,
+            )
 
         with st.expander("Ver calendario diario completo"):
             st.dataframe(seguimiento, use_container_width=True, hide_index=True)
